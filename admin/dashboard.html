@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - ZIKRIYA DARBAR FOOD PRODUCTS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: { extend: { fontFamily: { sans: ["Poppins", "sans-serif"] } } },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+      .sidebar {
+        background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+        height: 100vh;
+        overflow-y: auto;
+      }
+      .stats-card {
+        transition: all 0.3s ease;
+      }
+      .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+      .loading-spinner {
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .order-row {
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .order-row:hover {
+        background-color: #f9fafb;
+      }
+      .message-row {
+        transition: background-color 0.2s;
+      }
+      .message-row:hover {
+        background-color: #f3f4f6;
+      }
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+      .status-shipped {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+      .status-delivered {
+        background-color: #dcfce7;
+        color: #166534;
+      }
+      .status-rejected {
+        background-color: #fee2e2;
+        color: #dc2626;
+      }
+      .action-btn {
+        padding: 4px 8px;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+      }
+      .approve-btn {
+        background-color: #dcfce7;
+        color: #166534;
+      }
+      .approve-btn:hover {
+        background-color: #16a34a;
+        color: white;
+      }
+      .reject-btn {
+        background-color: #fee2e2;
+        color: #dc2626;
+      }
+      .reject-btn:hover {
+        background-color: #dc2626;
+        color: white;
+      }
+      .product-image-thumb {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 0.25rem;
+      }
+      .no-img-placeholder {
+        width: 40px;
+        height: 40px;
+        background-color: #e5e7eb;
+        border: 2px dashed #9ca3af;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        color: #6b7280;
+        border-radius: 0.25rem;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen flex">
+    <!-- Sidebar -->
+    <div
+      class="sidebar text-white flex flex-col z-50 md:flex-shrink-0 w-64 fixed md:relative h-screen overflow-y-auto transition-transform duration-300 -translate-x-full md:translate-x-0"
+      id="sidebar"
+    >
+      <div class="p-4 border-b border-blue-400 flex-shrink-0">
+        <h1 class="text-2xl font-bold">Admin Panel</h1>
+        <p class="text-sm opacity-90">Professional Dashboard</p>
+      </div>
+      <nav class="flex-1 p-4 overflow-y-auto">
+        <ul class="space-y-2">
+          <li>
+            <a
+              href="/admin/dashboard.html"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+            </a>
+          </li>
+          <li>
+            <a
+              href="/admin/add-product.html"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-plus mr-3"></i> Add Product
+            </a>
+          </li>
+          <li>
+            <a
+              href="/admin/profile.html"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-user mr-3"></i> Profile
+            </a>
+          </li>
+          <li>
+            <a
+              href="/admin/analytics.html"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-chart-bar mr-3"></i> Analytics
+            </a>
+          </li>
+          <li>
+            <a
+              href="/"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-home mr-3"></i> Return to Website
+            </a>
+          </li>
+          <li>
+            <button
+              onclick="logout()"
+              class="flex items-center p-3 rounded-lg hover:bg-red-500 transition w-full text-left"
+            >
+              <i class="fas fa-sign-out-alt mr-3"></i> Logout
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 md:ml-64 p-6 min-h-screen">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-800">Dashboard</h1>
+          <p class="text-gray-600 mt-1">
+            Welcome back! Manage your stock, orders and customer messages here.
+          </p>
+        </div>
+        <button
+          onclick="toggleSidebar()"
+          class="md:hidden p-3 bg-blue-500 text-white rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <i class="fas fa-bars text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div
+          class="stats-card bg-white p-6 rounded-2xl shadow-lg border border-gray-100"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                Total Products
+              </h3>
+              <p class="text-3xl font-bold text-blue-600" id="totalProducts">
+                0
+              </p>
+            </div>
+            <i class="fas fa-boxes text-4xl text-blue-400 opacity-80"></i>
+          </div>
+        </div>
+        <div
+          class="stats-card bg-white p-6 rounded-2xl shadow-lg border border-gray-100"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                Low Stock
+              </h3>
+              <p class="text-3xl font-bold text-red-600" id="lowStock">0</p>
+            </div>
+            <i
+              class="fas fa-exclamation-triangle text-4xl text-red-400 opacity-80"
+            ></i>
+          </div>
+        </div>
+        <div
+          class="stats-card bg-white p-6 rounded-2xl shadow-lg border border-gray-100"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                Total Orders
+              </h3>
+              <p class="text-3xl font-bold text-green-600" id="totalOrders">
+                0
+              </p>
+            </div>
+            <i
+              class="fas fa-shopping-cart text-4xl text-green-400 opacity-80"
+            ></i>
+          </div>
+        </div>
+        <div
+          class="stats-card bg-white p-6 rounded-2xl shadow-lg border border-gray-100"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                New Messages
+              </h3>
+              <p class="text-3xl font-bold text-purple-600" id="totalMessages">
+                0
+              </p>
+            </div>
+            <i class="fas fa-envelope text-4xl text-purple-400 opacity-80"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Orders Section -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-xl font-bold text-gray-800">Recent Orders</h2>
+          <p class="text-gray-600 text-sm mt-1">
+            Latest orders with status. Click row for details.
+          </p>
+        </div>
+        <div id="ordersLoader" class="p-6 text-center">
+          <i
+            class="fas fa-spinner loading-spinner text-2xl text-blue-500 mb-2"
+          ></i>
+          <p>Loading orders...</p>
+        </div>
+        <div id="ordersTableContainer" class="hidden overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Order ID
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Buyer
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Product
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Qty
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Total (Rs)
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Status
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Actions
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Date
+                </th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable" class="divide-y divide-gray-200">
+              <!-- Orders load here -->
+            </tbody>
+          </table>
+          <div id="noOrdersMsg" class="p-6 text-center text-gray-500 hidden">
+            No orders yet. Place one from the website!
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Messages Section -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+        <div
+          class="p-6 border-b border-gray-200 flex justify-between items-center"
+        >
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">Customer Messages</h2>
+            <p class="text-gray-600 text-sm mt-1">
+              Latest inquiries from contact form
+            </p>
+          </div>
+          <button
+            onclick="loadContactMessages()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+          >
+            <i class="fas fa-sync mr-2"></i> Refresh
+          </button>
+        </div>
+        <div id="messagesLoader" class="p-6 text-center hidden">
+          <i
+            class="fas fa-spinner loading-spinner text-2xl text-blue-500 mb-2"
+          ></i>
+          <p>Loading messages...</p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Name
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Phone
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Email
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Message
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Date
+                </th
+              </tr>
+            </thead>
+            <tbody id="messagesTable" class="divide-y divide-gray-200">
+              <!-- Messages load here -->
+            </tbody>
+          </table>
+          <div id="noMessagesMsg" class="p-6 text-center text-gray-500">
+            No messages yet.
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Overview Section -->
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+        <div
+          class="p-6 border-b border-gray-200 flex justify-between items-center"
+        >
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">Products Overview</h2>
+            <p class="text-gray-600 text-sm mt-1">
+              View and manage all products.
+            </p>
+          </div>
+          <a
+            href="/admin/add-product.html"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            <i class="fas fa-plus mr-2"></i> Add New Product
+          </a>
+        </div>
+
+        <div class="p-6">
+          <input
+            type="text"
+            id="searchAdmin"
+            placeholder="Search products by name..."
+            class="w-full md:w-80 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            onkeyup="loadProducts(this.value)"
+          />
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Image
+                </th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Name
+                </th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Price
+                </th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Stock
+                </th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Category
+                </th>
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody id="productsTable" class="divide-y divide-gray-200">
+              <!-- Products will load here -->
+            </tbody>
+          </table>
+
+          <div
+            class="p-4 flex justify-between items-center border-t bg-gray-50"
+          >
+            <p id="pageInfo" class="text-sm text-gray-600">Page 1 of 1</p>
+            <div>
+              <button
+                id="prevBtn"
+                onclick="changePage(-1)"
+                class="px-4 py-2 border border-gray-300 rounded-lg mr-2 disabled:opacity-50"
+                disabled
+              >
+                Previous
+              </button>
+              <button
+                id="nextBtn"
+                onclick="changePage(1)"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+                disabled
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="noProductsMsg" class="p-10 text-center text-gray-500 hidden">
+          No products found.
+        </div>
+      </div>
+
+      <!-- Bill Details Modal -->
+      <div
+        id="billModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50"
+      >
+        <div
+          class="bg-white dark:bg-gray-800 p-6 rounded-2xl max-w-2xl w-full m-4 max-h-[80vh] overflow-y-auto"
+        >
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">Order Details & Bill</h3>
+            <button
+              onclick="closeBillModal()"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div id="billContent" class="mb-4"></div>
+          <div class="flex justify-end space-x-2 pt-4 border-t">
+            <button
+              onclick="printBill()"
+              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Print
+            </button>
+            <button
+              onclick="downloadBill()"
+              class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        const token = localStorage.getItem("adminToken");
+        if (!token) window.location.href = "/admin/login.html";
+
+        let allOrders = [];
+        let allProducts = [];
+        let allMessages = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Load Orders
+        async function loadOrders() {
+          try {
+            const res = await fetch("/api/admin/orders", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to load orders");
+            allOrders = await res.json();
+            displayOrders(allOrders);
+            document.getElementById("totalOrders").textContent =
+              allOrders.length;
+            document.getElementById("ordersLoader").classList.add("hidden");
+            document
+              .getElementById("ordersTableContainer")
+              .classList.remove("hidden");
+            if (allOrders.length === 0) {
+              document.getElementById("noOrdersMsg").classList.remove("hidden");
+            }
+          } catch (error) {
+            console.error("Load orders error:", error);
+            showToast("Failed to load orders", "error");
+          }
+        }
+
+        // Load Contact Messages
+        async function loadContactMessages() {
+          document.getElementById("messagesLoader").classList.remove("hidden");
+          document.getElementById("noMessagesMsg").classList.add("hidden");
+          try {
+            const res = await fetch("/api/admin/contact", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) {
+              const err = await res.text();
+              throw new Error(err || "Failed to fetch messages");
+            }
+            allMessages = await res.json();
+            displayMessages(allMessages);
+            document.getElementById("totalMessages").textContent =
+              allMessages.length;
+          } catch (error) {
+            console.error("Load messages error:", error);
+            document.getElementById("messagesTable").innerHTML = `
+              <tr>
+                <td colspan="5" class="text-center py-8 text-red-500">
+                  Error loading messages: ${error.message}
+                  <button onclick="loadContactMessages()" class="underline ml-2">Retry</button>
+                </td>
+              </tr>
+            `;
+            showToast("Failed to load messages", "error");
+          } finally {
+            document.getElementById("messagesLoader").classList.add("hidden");
+          }
+        }
+
+        function displayMessages(messages) {
+          const tbody = document.getElementById("messagesTable");
+          if (messages.length === 0) {
+            document.getElementById("noMessagesMsg").classList.remove("hidden");
+            tbody.innerHTML = "";
+            return;
+          }
+          document.getElementById("noMessagesMsg").classList.add("hidden");
+          tbody.innerHTML = messages
+            .reverse()
+            .slice(0, 15)
+            .map(
+              (m) => `
+              <tr class="message-row">
+                <td class="px-6 py-4 text-sm font-medium">${m.name}</td>
+                <td class="px-6 py-4 text-sm">${m.phone}</td>
+                <td class="px-6 py-4 text-sm">${m.email}</td>
+                <td class="px-6 py-4 text-sm max-w-xs truncate">${m.message}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">${new Date(
+                  m.createdAt
+                ).toLocaleString()}</td>
+              </tr>
+            `
+            )
+            .join("");
+        }
+
+        function displayOrders(orders) {
+          const tbody = document.getElementById("ordersTable");
+          tbody.innerHTML = orders
+            .slice(0, 10)
+            .map((order) => {
+            const product = allProducts.find(
+                (p) => p._id === order.productId
+              );
+              const statusClass = `status-${order.status.toLowerCase()}`;
+              const isPending = order.status === "Pending";
+              return `
+                <tr class="order-row ${isPending ? "bg-yellow-50" : ""}" onclick="showOrderDetails('${order._id}')">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${order._id.slice(-6)}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.buyer.name} <br><small class="text-gray-400">${order.buyer.phone}</small></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ${product && product.images && product.images[0] 
+                      ? `<img src="${product.images[0]}" alt="${order.productName}" class="product-image-thumb inline-block mr-2" onerror="this.style.display='none'">` 
+                      : '<div class="no-img-placeholder inline-block mr-2">No Img</div>'
+                    }
+                    ${order.productName}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.qty}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">Rs ${order.total.toFixed(0)}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="status-badge ${statusClass}">${order.status}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                    ${isPending ? `
+                      <button onclick="updateStatus('${order._id}', 'Shipped', event)" class="approve-btn action-btn">
+                        <i class="fas fa-check mr-1"></i>Approve
+                      </button>
+                      <button onclick="updateStatus('${order._id}', 'Rejected', event)" class="reject-btn action-btn">
+                        <i class="fas fa-times mr-1"></i>Reject
+                      </button>
+                    ` : ""}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(order.createdAt).toLocaleDateString()}</td>
+                </tr>
+              `;
+            })
+            .join("");
+        }
+
+        async function updateStatus(orderId, newStatus, event) {
+          if (event) event.stopPropagation();
+          if (confirm(`Are you sure you want to ${newStatus.toLowerCase()} this order?`)) {
+            try {
+              const res = await fetch(`/api/admin/orders/${orderId}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ status: newStatus }),
+              });
+              if (!res.ok) throw new Error(await res.text());
+              loadOrders();
+              showToast(`${newStatus} successfully!`);
+            } catch (error) {
+              showToast(`Error: ${error.message}`, "error");
+            }
+          }
+        }
+
+        async function loadProducts(search = "") {
+          try {
+            const res = await fetch("/api/admin/products", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error(await res.text());
+            allProducts = await res.json();
+            const filtered = allProducts.filter((p) =>
+              p.name.toLowerCase().includes(search.toLowerCase())
+            );
+            displayProducts(filtered);
+            updateProductStats(filtered);
+          } catch (error) {
+            console.error("Load products error:", error);
+            showToast("Failed to load products", "error");
+          }
+        }
+
+        function displayProducts(prods) {
+          const start = (currentPage - 1) * itemsPerPage;
+          const end = start + itemsPerPage;
+          const paginated = prods.slice(start, end);
+          const tbody = document.getElementById("productsTable");
+
+          if (paginated.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-gray-500">No products found.</td></tr>`;
+            document.getElementById("noProductsMsg").classList.remove("hidden");
+          } else {
+            document.getElementById("noProductsMsg").classList.add("hidden");
+            tbody.innerHTML = paginated
+              .map(
+                (p) => `
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    ${p.images && p.images[0] 
+                      ? `<img src="${p.images[0]}" alt="${p.name}" class="product-image-thumb" onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\\\"no-img-placeholder\\\">No Img</div>'">` 
+                      : '<div class="no-img-placeholder">No Img</div>'
+                    }
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${p.name}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    Rs ${p.price.toFixed(0)} 
+                    ${p.discount > 0 ? `<span class="text-red-500 line-through ml-1">Rs ${(p.price * (1 - p.discount / 100)).toFixed(0)}</span>` : ""}
+                    ${p.discount > 0 ? `<span class="text-green-600 ml-1">(${p.discount}% off)</span>` : ""}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm ${p.stock < 10 ? "text-red-500 font-bold" : "text-gray-500"}">${p.stock}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${p.category}</td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                    <button onclick="editProduct('${p._id}')" class="text-blue-600 hover:text-blue-900 bg-blue-100 px-3 py-1 rounded">
+                      <i class="fas fa-edit mr-1"></i>Edit
+                    </button>
+                    <button onclick="deleteProduct('${p._id}')" class="text-red-600 hover:text-red-900 bg-red-100 px-3 py-1 rounded">
+                      <i class="fas fa-trash mr-1"></i>Delete
+                    </button>
+                  </td>
+                </tr>
+              `
+              )
+              .join("");
+          }
+          updatePagination(prods);
+        }
+
+        function updateProductStats(prods) {
+          document.getElementById("totalProducts").textContent = prods.length;
+          const lowStockCount = prods.filter((p) => p.stock < 10).length;
+          document.getElementById("lowStock").textContent = lowStockCount;
+        }
+
+        function updatePagination(prods) {
+          const totalPages = Math.ceil(prods.length / itemsPerPage);
+          document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages || 1}`;
+          document.getElementById("prevBtn").disabled = currentPage === 1;
+          document.getElementById("nextBtn").disabled = currentPage >= totalPages;
+        }
+
+        function changePage(delta) {
+          const searchValue = document.getElementById("searchAdmin")?.value || "";
+          const tempProds = allProducts.filter((p) =>
+            p.name.toLowerCase().includes(searchValue.toLowerCase())
+          );
+          const totalPages = Math.ceil(tempProds.length / itemsPerPage);
+          const newPage = Math.max(1, Math.min(currentPage + delta, totalPages));
+          if (newPage !== currentPage) {
+            currentPage = newPage;
+            displayProducts(tempProds);
+            updatePagination(tempProds);
+          }
+        }
+
+        function editProduct(id) {
+          window.location.href = `/admin/add-product.html?id=${id}`;
+        }
+
+        async function deleteProduct(id) {
+          if (!confirm("Are you sure you want to delete this product? This action cannot be undone.")) return;
+          try {
+            const res = await fetch(`/api/admin/products/${id}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error(await res.text());
+            const searchValue = document.getElementById("searchAdmin")?.value || "";
+            loadProducts(searchValue);
+            showToast("Product deleted successfully!");
+          } catch (error) {
+            showToast(`Error: ${error.message}`, "error");
+          }
+        }
+
+        let currentOrderDetails = null;
+        async function showOrderDetails(orderId) {
+          currentOrderDetails = allOrders.find((o) => o._id === orderId);
+          if (!currentOrderDetails) return;
+
+          const currentDate = new Date().toLocaleDateString("en-PK");
+
+          const billHtml = `
+            <div class="text-center mb-8 border-b pb-6">
+              <h2 class="text-3xl font-bold text-gray-800">ZIKRIYA DARBAR FOOD PRODUCTS</h2>
+              <p class="text-lg text-gray-600 mt-1">Tax Invoice / Official Bill</p>
+              <div class="mt-4 text-sm text-gray-600">
+                <p>Order ID: #${currentOrderDetails._id.slice(-6)}</p>
+                <p>Date: ${currentDate}</p>
+              </div>
+            </div>
+
+            <table class="w-full mb-6 border-collapse border border-gray-300">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="p-3 border text-left">Product</th>
+                  <th class="p-3 border">Qty</th>
+                  <th class="p-3 border">Unit Price</th>
+                  <th class="p-3 border">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-3 border">${currentOrderDetails.productName}</td>
+                  <td class="p-3 border text-center">${currentOrderDetails.qty}</td>
+                  <td class="p-3 border">Rs ${(currentOrderDetails.subtotal / currentOrderDetails.qty).toFixed(2)}</td>
+                  <td class="p-3 border">Rs ${currentOrderDetails.subtotal.toFixed(0)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="border-t pt-4 text-right text-sm space-y-1">
+              <p><strong>GST (10%):</strong> Rs ${currentOrderDetails.gst.toFixed(0)}</p>
+              <p><strong>Delivery Charges:</strong> Rs ${currentOrderDetails.delivery.toFixed(0)}</p>
+              <p class="text-xl font-bold text-green-600 mt-4">Grand Total: Rs ${currentOrderDetails.total.toFixed(0)}</p>
+            </div>
+
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg text-sm">
+              <p class="font-semibold mb-2">Customer Details:</p>
+              <p><strong>Name:</strong> ${currentOrderDetails.buyer.name}</p>
+              <p><strong>Phone:</strong> ${currentOrderDetails.buyer.phone}</p>
+              <p><strong>Address:</strong> ${currentOrderDetails.buyer.address}</p>
+            </div>
+
+            <div class="mt-4 text-sm text-gray-600">
+              <p>Payment Method: JazzCash / Cash on Delivery</p>
+              <p>Expected Delivery: 2-3 days via TCS</p>
+              <p class="mt-3">Status: <span class="status-badge status-${currentOrderDetails.status.toLowerCase()}">${currentOrderDetails.status}</span></p>
+            </div>
+          `;
+
+          document.getElementById("billContent").innerHTML = billHtml;
+          document.getElementById("billModal").classList.remove("hidden");
+        }
+
+        function closeBillModal() {
+          document.getElementById("billModal").classList.add("hidden");
+        }
+
+        function printBill() {
+          window.print();
+        }
+
+        function downloadBill() {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+          doc.html(document.getElementById("billContent"), {
+            callback: function (doc) {
+              doc.save(`order-bill-${currentOrderDetails._id.slice(-6)}.pdf`);
+            },
+            x: 10,
+            y: 10,
+            width: 190,
+            windowWidth: 800,
+          });
+        }
+
+        function showToast(msg, type = "success") {
+          const toast = document.createElement("div");
+          toast.className = `fixed top-4 right-4 ${type === "success" ? "bg-green-500" : "bg-red-500"} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+          toast.textContent = msg;
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 3000);
+        }
+
+        function toggleSidebar() {
+          document.getElementById("sidebar").classList.toggle("-translate-x-full");
+        }
+
+        function logout() {
+          if (confirm("Logout and return to website?")) {
+            localStorage.removeItem("adminToken");
+            window.location.href = "/";
+          }
+        }
+
+        // Init Dashboard
+        async function loadDashboard() {
+          await Promise.all([
+            loadOrders(),
+            loadProducts(""),
+            loadContactMessages(),
+          ]);
+        }
+
+        loadDashboard();
+      </script>
+    </div>
+  </body>
+</html>

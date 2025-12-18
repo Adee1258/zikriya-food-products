@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile - ZIKRIYA DARBAR FOOD PRODUCTS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: { extend: { fontFamily: { sans: ["Poppins", "sans-serif"] } } },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+      .sidebar {
+        background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+        height: 100vh;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen flex">
+    <!-- Static Sidebar (Full Height Left Side) -->
+    <div
+      class="sidebar text-white flex flex-col z-50 md:flex-shrink-0 w-64 fixed md:relative h-screen overflow-y-auto transition-transform duration-300 -translate-x-full md:translate-x-0"
+      id="sidebar"
+    >
+      <div class="p-4 border-b border-blue-400 flex-shrink-0">
+        <h1 class="text-2xl font-bold">Admin Panel</h1>
+        <p class="text-sm opacity-90">Professional Dashboard</p>
+      </div>
+      <nav class="flex-1 p-4 overflow-y-auto">
+        <ul class="space-y-2">
+          <li>
+            <a
+              href="/admin/dashboard.html"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+            </a>
+          </li>
+          <li>
+            <a
+              href="/admin/add-product.html"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-plus mr-3"></i> Add Product
+            </a>
+          </li>
+          <li>
+            <a
+              href="/admin/profile.html"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-user mr-3"></i> Profile
+            </a>
+          </li>
+          <li>
+            <a
+              href="/admin/analytics.html"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-chart-bar mr-3"></i> Analytics
+            </a>
+          </li>
+          <li>
+            <a
+              href="/"
+              class="flex items-center p-3 rounded-lg hover:bg-blue-500 transition"
+            >
+              <i class="fas fa-home mr-3"></i> Return to Website
+            </a>
+          </li>
+          <li>
+            <button
+              onclick="logout()"
+              class="flex items-center p-3 rounded-lg hover:bg-red-500 transition w-full text-left"
+            >
+              <i class="fas fa-sign-out-alt mr-3"></i> Logout
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 md:ml-64 p-6 min-h-screen">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-800">Profile</h1>
+          <p class="text-gray-600 mt-1">Update your account settings.</p>
+        </div>
+        <button
+          onclick="toggleSidebar()"
+          class="md:hidden p-3 bg-blue-500 text-white rounded-xl shadow-lg hover:shadow-xl transition"
+        >
+          <i class="fas fa-bars text-lg"></i>
+        </button>
+      </div>
+
+      <div
+        class="bg-white p-8 rounded-2xl shadow-lg max-w-md mx-auto border border-gray-100"
+      >
+        <div id="profileInfo" class="text-center mb-8">
+          <img
+            id="dpPreview"
+            src="/default-dp.jpg"
+            alt="Profile Picture"
+            class="w-32 h-32 rounded-full mx-auto mb-4 shadow-lg border-4 border-blue-500"
+          />
+          <h2 id="usernameDisplay" class="text-2xl font-bold text-gray-800">
+            Admin
+          </h2>
+          <p class="text-gray-600">Admin User</p>
+        </div>
+        <form id="profileForm" enctype="multipart/form-data">
+          <input
+            type="file"
+            id="dp"
+            accept="image/*"
+            class="w-full p-3 border rounded-lg mb-4 hidden"
+            onchange="previewDP()"
+          />
+          <button
+            type="button"
+            onclick="document.getElementById('dp').click()"
+            class="w-full bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg transition mb-4 flex items-center justify-center"
+          >
+            <i class="fas fa-camera mr-2"></i> Change Profile Picture
+          </button>
+          <div id="currentImage" class="mb-4 hidden">
+            <p class="text-sm text-gray-500 text-center mb-2">
+              Current image – new upload to replace
+            </p>
+          </div>
+          <input
+            type="password"
+            id="oldPassword"
+            placeholder="Old Password"
+            class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            id="newPassword"
+            placeholder="New Password"
+            class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm New Password"
+            class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition"
+          >
+            Update Profile
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const token = localStorage.getItem("adminToken");
+      if (!token) window.location.href = "/admin/login.html";
+
+      // Load profile
+      async function loadProfile() {
+        const res = await fetch("/api/admin/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        document.getElementById("usernameDisplay").textContent = data.username;
+        document.getElementById("dpPreview").src = data.dp;
+        const currentDiv = document.getElementById("currentImage");
+        currentDiv.classList.remove("hidden");
+      }
+
+      function previewDP() {
+        const file = document.getElementById("dp").files[0];
+        if (file) {
+          document.getElementById("dpPreview").src = URL.createObjectURL(file);
+        }
+      }
+
+      document
+        .getElementById("profileForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const newPassword = document.getElementById("newPassword").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+          if (newPassword && newPassword !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+          }
+          const formData = new FormData();
+          formData.append(
+            "oldPassword",
+            document.getElementById("oldPassword").value
+          );
+          formData.append("newPassword", newPassword);
+          formData.append("type", "dp");
+          formData.append("dp", document.getElementById("dp").files[0]);
+
+          const res = await fetch("/api/admin/profile", {
+            method: "PUT",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          });
+          const data = await res.json();
+          alert(data.msg);
+          loadProfile();
+          e.target.reset();
+          document.getElementById("dp").value = "";
+        });
+
+      loadProfile(); // On load
+
+      // Sidebar functions
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        if (sidebar) sidebar.classList.toggle("-translate-x-full");
+      }
+
+      function logout() {
+        if (confirm("Logout and return to website?")) {
+          localStorage.removeItem("adminToken");
+          window.location.href = "/";
+        }
+      }
+    </script>
+  </body>
+</html>
